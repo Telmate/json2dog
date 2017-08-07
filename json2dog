@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use LWP::Simple qw(get);
+use JSON;
+
+use DataDog::DogStatsd;
+
+#TODO: handle options
+#my $opt_proxy = 0;
+my $debug = 0;
+my $delay = 60; # seconds
+
+# read command line arguments
+my ($health_url,$statsd_base) = @ARGV;
+
+# defaults
+unless (defined $health_url) {
+	$health_url = 'https://jsonplaceholder.typicode.com/posts/1';
+}
+unless (defined $statsd_base) {
+	$statsd_base = 'test.json';
+	warn "defaulting stats_base to '$statsd_base'.";
+}
+
+# instances of handy objects
+my $dogstatsd = DataDog::DogStatsd->new;
+my $json = JSON->new->allow_nonref;
+
+# keep pulling stats until we get killed
+while (1) {
+	print "$health_url\n";
+	
+	my $raw_html = get($health_url);
+	#print "$raw_html\n";
+
+	unless (length $raw_html) {
+		die "no data back from $health_url";
+	}
+
+	my $health_resp = $json->decode($raw_html);
+	print Dumper($health_resp);
+
+	sleep($delay-1); # TODO: more elegant calculation of how long it took to do one iteration
+}
+
+#	dogstatsd->gauge( "dnet.rc5-72.buffer.${buff_name_encoded}",$packet_count) unless $debug;
