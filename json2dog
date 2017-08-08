@@ -9,9 +9,8 @@ use JSON;
 
 use DataDog::DogStatsd;
 
-#TODO: handle options
-#my $opt_proxy = 0;
-my $debug = 0;
+# options
+my $debug = 0; #TODO: handle options
 my $delay = 60; # seconds
 
 # read command line arguments
@@ -21,6 +20,8 @@ my ($health_url,$statsd_base) = @ARGV;
 unless (defined $health_url) {
 	$health_url = 'https://jsonplaceholder.typicode.com/posts/1';
 }
+print "checking $health_url\n";
+
 unless (defined $statsd_base) {
 	$statsd_base = 'test.json';
 	warn "defaulting stats_base to '$statsd_base'.";
@@ -32,8 +33,6 @@ my $json = JSON->new->allow_nonref;
 
 # keep pulling stats until we get killed
 while (1) {
-	print "$health_url\n";
-	
 	my $raw_html = get($health_url);
 	#print "$raw_html\n";
 
@@ -42,9 +41,18 @@ while (1) {
 	}
 
 	my $health_resp = $json->decode($raw_html);
-	print Dumper($health_resp);
+	print Dumper($health_resp) if $debug;
 
+	foreach my $key (keys %$health_resp) {
+		my $value = $health_resp->{$key};
+		if ($value =~ /^[0-9.]+$/) { # only numbers
+			my $metric_label = $statsd_base . '.' . $key;
+			print "$metric_label -> $value\n";
+#	dogstatsd->gauge( $metric_label, $value) unless $debug;
+		}
+	}
+
+	print "\n";
 	sleep($delay-1); # TODO: more elegant calculation of how long it took to do one iteration
 }
 
-#	dogstatsd->gauge( "dnet.rc5-72.buffer.${buff_name_encoded}",$packet_count) unless $debug;
