@@ -15,6 +15,7 @@ Send JSON data from a URL to datadog.
 
 	cd lib
 	export PERL5LIB=`pwd`
+	cd ..
 	./json2dog health_url statsd_base
 
 where
