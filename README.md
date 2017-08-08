@@ -13,6 +13,8 @@ Send JSON data from a URL to datadog.
 
 ## Usage <a name="usage"></a>
 
+	cd lib
+	export PERL5LIB=`pwd`
 	./json2dog health_url statsd_base
 
 where
