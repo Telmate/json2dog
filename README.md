@@ -27,6 +27,9 @@ where
 * Perl module JSON
 * Perl module LWP::UserAgent
 
+The two standard Perl modules mentioned above can be installed my running
+[`prereq.sh`](prereq.sh).
+
 ## Authors <a name="authors"></a>
 
 * Christopher Hicks <chicks@telmate.com>
