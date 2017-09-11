@@ -5,6 +5,7 @@ Send JSON data from a URL to datadog.
 * [Supported Platforms](#supported-platforms)
 * [Usage](#usage)
 * [Dependencies](#dependencies)
+* [Sample Results](#sample_results)
 * [Authors](#authors)
 
 ## Supported Platforms <a name="supported-platforms"></a>
@@ -32,6 +33,10 @@ where
 
 The two standard Perl modules mentioned above can be installed my running
 [`prereq.sh`](prereq.sh).
+
+## Sample Results <A name="sample_results"></a>
+
+![example 1](img/json2dog_example1.png)
 
 ## Authors <a name="authors"></a>
 
