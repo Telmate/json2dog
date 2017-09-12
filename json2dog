@@ -32,6 +32,7 @@ unless (defined $statsd_base) {
 
 # instances of handy objects
 my $dogstatsd = DataDog::DogStatsd->new;
+$dogstatsd->{port} = find_port();
 my $json = JSON->new->allow_nonref;
 
 # keep pulling stats until we get killed
@@ -83,4 +84,18 @@ sub curl {
 	my ($url) = @_;
 	my $output = `curl -s $url`;
 	return $output;
+}
+
+sub find_port {
+	my @possible_ports = qw(8125 1025);
+
+	foreach my $port (@possible_ports) {
+		my $output = `netstat -na | grep :$port`;
+		if (length($output)) {
+			print "talking to port $port\n";
+			return $port;
+		}
+	}
+
+	die "no dogstatsd port to talk to"
 }
