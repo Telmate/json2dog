@@ -14,7 +14,7 @@ my $debug = 0; #TODO: handle options
 my $delay = 60; # seconds
 my $use_curl = 0; # true if curl is better than LWP::Simple
 #$use_curl = 1 if -e '/etc/redhat-release';
-print "use_curl = $use_curl\n";
+#print "use_curl = $use_curl\n";
 
 # read command line arguments
 my ($health_url,$statsd_base) = @ARGV;
@@ -22,8 +22,8 @@ my ($health_url,$statsd_base) = @ARGV;
 # defaults
 unless (defined $health_url) {
 	$health_url = 'https://jsonplaceholder.typicode.com/posts/1';
+	warn "checking $health_url\n";
 }
-print "checking $health_url\n";
 
 unless (defined $statsd_base) {
 	$statsd_base = 'test.json';
@@ -53,16 +53,12 @@ while (1) {
 		my $value = $health_resp->{$key};
 		if ($value =~ /^[0-9.]+$/) { # only numbers
 			my $metric_label = $statsd_base . '.' . $key;
-			print "$metric_label -> $value\n";
-			if ($debug) {
-				print "skipped sending metric $metric_label($value)";
-			} else {
-				$dogstatsd->gauge( $metric_label, $value);
-			}
+			print "$metric_label -> $value\n" if $debug;
+			$dogstatsd->gauge( $metric_label, $value);
 		}
 	}
 
-	print "\n";
+	print "\n" if $debug;
 	sleep($delay-1); # TODO: more elegant calculation of how long it took to do one iteration
 }
 
