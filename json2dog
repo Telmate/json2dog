@@ -85,6 +85,10 @@ sub curl {
 sub find_port {
 	my @possible_ports = qw(8125 1025);
 
+	if ( defined $ENV{DOGSTATSD_PORT} ) {
+		unshift(@possible_ports, $ENV{DOGSTATSD_PORT});
+	}
+
 	foreach my $port (@possible_ports) {
 		my $output = `netstat -na | grep :$port`;
 		if (length($output)) {

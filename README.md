@@ -15,9 +15,14 @@ Send JSON data from a URL to datadog.
 
 ## Usage <a name="usage"></a>
 
+	# to get our copy of DataDog::DogStatsd
 	cd lib
 	export PERL5LIB=`pwd`
 	cd ..
+
+	# set port for dogstatsd (optional)
+	export DOGSTATSD_PORT=8125
+
 	./json2dog health_url statsd_base
 
 where
