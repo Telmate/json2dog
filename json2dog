@@ -47,18 +47,18 @@ while (1) {
 	}
 
 	my $health_resp = $json->decode($raw_html);
-	print Dumper($health_resp) if $debug;
+	error(Dumper($health_resp)) if $debug;
 
 	foreach my $key (keys %$health_resp) {
 		my $value = $health_resp->{$key};
 		if ($value =~ /^[0-9.]+$/) { # only numbers
 			my $metric_label = $statsd_base . '.' . $key;
-			print "$metric_label -> $value\n" if $debug;
+			error("$metric_label -> $value") if $debug;
 			$dogstatsd->gauge( $metric_label, $value);
 		}
 	}
 
-	print "\n" if $debug;
+	error("\n") if $debug;
 	sleep($delay-1); # TODO: more elegant calculation of how long it took to do one iteration
 }
 
@@ -92,7 +92,7 @@ sub find_port {
 	foreach my $port (@possible_ports) {
 		my $output = `netstat -na | grep :$port`;
 		if (length($output)) {
-			print "talking to port $port\n";
+			error("talking to port $port\n");
 			return $port;
 		}
 	}
