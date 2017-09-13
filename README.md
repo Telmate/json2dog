@@ -6,6 +6,7 @@ Send JSON data from a URL to datadog.
 * [Usage](#usage)
 * [Dependencies](#dependencies)
 * [Sample Results](#sample_results)
+* [Support](#support)
 * [Authors](#authors)
 
 ## Supported Platforms <a name="supported-platforms"></a>
@@ -37,6 +38,10 @@ The two standard Perl modules mentioned above can be installed my running
 ## Sample Results <A name="sample_results"></a>
 
 ![example 1](img/json2dog_example1.png)
+
+## Support <a name="support"></a>
+
+Please file tickets via [github issues](https://github.com/Telmate/json2dog/issues).
 
 ## Authors <a name="authors"></a>
 
