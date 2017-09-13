@@ -22,12 +22,12 @@ my ($health_url,$statsd_base) = @ARGV;
 # defaults
 unless (defined $health_url) {
 	$health_url = 'https://jsonplaceholder.typicode.com/posts/1';
-	warn "checking $health_url\n";
+	error("checking $health_url");
 }
 
 unless (defined $statsd_base) {
 	$statsd_base = 'test.json';
-	warn "defaulting stats_base to '$statsd_base'.";
+	error("defaulting stats_base to '$statsd_base'.");
 }
 
 # instances of handy objects
@@ -41,7 +41,7 @@ while (1) {
 
 	unless (defined $raw_html and length $raw_html) {
 		my $sleep_time = int(rand(30));
-		warn "no data back from $health_url, sleeping for $sleep_time seconds";
+		error("no data back from $health_url, sleeping for $sleep_time seconds");
 		sleep($sleep_time);
 		next; # try again
 	}
@@ -97,5 +97,18 @@ sub find_port {
 		}
 	}
 
-	die "no dogstatsd port to talk to"
+	error("ERROR: no dogstatsd port to talk to");
+	die;
+}
+
+sub error {
+	my ($log_message) = @_;
+
+	my $now = gmtime(time);
+	my $hostname = 'localhost:';
+	if (defined $ENV{HOSTNAME}) {
+		$hostname = $ENV{HOSTNAME} . ':';
+	}
+
+	print "$now $hostname $log_message\n";
 }
