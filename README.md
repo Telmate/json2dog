@@ -28,7 +28,7 @@ where
 ## Dependencies <a name="dependencies"></a>
 
 * Perl 5
-* Perl module [DataDog::DogStatsd](https://github.com/binary-com/dogstatsd-perl) 
+* Perl module [DataDog::DogStatsd](https://github.com/binary-com/dogstatsd-perl) is included
 * Perl module JSON
 * Perl module LWP::UserAgent
 
