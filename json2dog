@@ -12,6 +12,7 @@ use DataDog::DogStatsd;
 # options
 my $debug = $ENV{JSON2DOG_DEBUG} || 0;
 my $delay = 60; # seconds
+
 my $use_curl = 0; # true if curl is better than LWP::Simple
 #$use_curl = 1 if -e '/etc/redhat-release';
 #print "use_curl = $use_curl\n";
@@ -29,6 +30,8 @@ unless (defined $statsd_base) {
 	$statsd_base = 'test.json';
 	error("defaulting stats_base to '$statsd_base'.");
 }
+my @log_minutes = qw( 1 10 60 ); # and every 60x minutes
+my $stats_sent = 0; # initialize counter
 
 # instances of handy objects
 my $dogstatsd = DataDog::DogStatsd->new;
@@ -55,8 +58,11 @@ while (1) {
 			my $metric_label = $statsd_base . '.' . $key;
 			error("$metric_label -> $value") if $debug;
 			$dogstatsd->gauge( $metric_label, $value);
+			$stats_sent++;
 		}
 	}
+
+	timed_log($stats_sent);
 
 	error("") if $debug;
 	sleep($delay-1); # TODO: more elegant calculation of how long it took to do one iteration
@@ -111,4 +117,25 @@ sub error {
 	}
 
 	print "$now $hostname $log_message\n";
+}
+
+sub timed_log {
+	my ($log_message) = @_;
+
+	my $running = (time - $^T) / 60;
+	$running = sprintf("%.1f",$running);
+
+	my $show_minutes = $log_minutes[0];
+
+	return unless $running > $show_minutes;
+
+	error("$log_message metrics sent over $running minutes");
+
+	shift @log_minutes;
+	unless (scalar @log_minutes) {
+		# empty @log_minutes
+		push(@log_minutes, $show_minutes + 60);
+		error("adding to log_minutes $show_minutes+60");
+	}
+	#die;
 }
