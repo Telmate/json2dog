@@ -10,7 +10,7 @@ use JSON;
 use DataDog::DogStatsd;
 
 # options
-my $debug = 0; #TODO: handle options
+my $debug = $ENV{JSON2DOG_DEBUG} || 0;
 my $delay = 60; # seconds
 my $use_curl = 0; # true if curl is better than LWP::Simple
 #$use_curl = 1 if -e '/etc/redhat-release';
@@ -92,7 +92,7 @@ sub find_port {
 	foreach my $port (@possible_ports) {
 		my $output = `netstat -na | grep :$port`;
 		if (length($output)) {
-			error("talking to port $port\n");
+			error("talking to port $port");
 			return $port;
 		}
 	}

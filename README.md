@@ -14,21 +14,27 @@ Send JSON data from a URL to datadog.
 * Ubuntu or CentOS
 
 ## Usage <a name="usage"></a>
-
 	# to get our copy of DataDog::DogStatsd
 	cd lib
 	export PERL5LIB=`pwd`
 	cd ..
 
-	# set port for dogstatsd (optional)
-	export DOGSTATSD_PORT=8125
-
 	./json2dog health_url statsd_base
 
 where
 
-* `health_url` is a JSON end point that returns stats we should graph
+* `health_url` is a URL to a JSON end point that returns stats we should graph
 * `statsd_base` is the start of the metric name that should be sent to datadog
+
+Options can be set by setting environment variables:
+
+	# set port for dogstatsd (optional)
+	export DOGSTATSD_PORT=8125
+
+	# enable debug mode
+	export JSON2DOG_DEBUG=1
+
+	./json2dog health_url statsd_base
 
 ## Dependencies <a name="dependencies"></a>
 
