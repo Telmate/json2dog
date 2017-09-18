@@ -135,7 +135,7 @@ sub timed_log {
 	unless (scalar @log_minutes) {
 		# empty @log_minutes
 		push(@log_minutes, $show_minutes + 60);
-		error("adding to log_minutes $show_minutes+60");
+		error("adding to log_minutes $show_minutes+60") if $debug;
 	}
 	#die;
 }
