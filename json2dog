@@ -65,7 +65,7 @@ while (1) {
 	timed_log($stats_sent);
 
 	error("") if $debug;
-	sleep($delay-1); # TODO: more elegant calculation of how long it took to do one iteration
+	sleep($delay);
 }
 
 sub http_get {
