@@ -11,6 +11,7 @@ use DataDog::DogStatsd;
 
 # options
 my $debug = $ENV{JSON2DOG_DEBUG} || 0;
+my $log_file = $ENV{JSON2DOG_LOG} || undef;
 my $delay = 60; # seconds
 
 my $use_curl = 0; # true if curl is better than LWP::Simple
@@ -19,6 +20,15 @@ my $use_curl = 0; # true if curl is better than LWP::Simple
 
 # read command line arguments
 my ($health_url,$statsd_base) = @ARGV;
+
+# open log file
+our $log_fh;
+if (defined $log_file) {
+	open $log_fh, '>>', $log_file or die "couldn't open $log_file: $!";
+} else {
+	# log to STDOUT
+	open $log_fh, '>&STDOUT' or die "couldn't copy STDOUT: $!";
+}
 
 # defaults
 unless (defined $health_url) {
@@ -116,7 +126,7 @@ sub error {
 		$hostname = $ENV{HOSTNAME} . ':';
 	}
 
-	print "$now $hostname $log_message\n";
+	print $log_fh "$now $hostname $log_message\n";
 }
 
 sub timed_log {

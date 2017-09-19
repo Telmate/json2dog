@@ -34,6 +34,9 @@ Options can be set by setting environment variables:
 	# enable debug mode
 	export JSON2DOG_DEBUG=1
 
+	# log to a file
+	export JSON2DOG_LOG=/var/log/json2dog.log
+
 	./json2dog health_url statsd_base
 
 ## Dependencies <a name="dependencies"></a>
