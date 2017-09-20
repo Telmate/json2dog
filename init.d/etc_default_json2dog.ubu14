@@ -1,0 +1,17 @@
+#
+# /etc/default/json2dog
+#
+# JSON2DOG_URL and JSON2DOG_BASE are set to the
+# same defaults that `json2dog` defaults to.
+# You probably want to change to these to something
+# meaningful for your setup.
+#
+export JSON2DOG_URL=https://jsonplaceholder.typicode.com/posts/1
+export JSON2DOG_BASE=test.json
+export JSON2DOG_LOG=/var/log/json2dog.log
+#export JSON2DOG_LOG=/home/chicks/json2dog.log
+export DOGSTATSD_PORT=8125
+#export DOGSTATSD_PORT=1025
+export JSON2DOG_DEBUG=0
+export HOSTNAME=`hostname`
+export RUNASUSER=chicks

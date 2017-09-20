@@ -1,0 +1,71 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:        json2dog
+# Required-Start:  $network $remote_fs $syslog
+# Required-Stop:   $network $remote_fs $syslog
+# Default-Start:   2 3 4 5
+# Default-Stop:    1
+# Short-Description: Start json2dog daemon
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+. /lib/lsb/init-functions
+
+DAEMON=/opt/json2dog/json2dog
+PIDFILE=/var/run/json2dog.pid
+
+test -x $DAEMON || exit 5
+
+RUNASUSER=nobody
+if [ -r /etc/default/json2dog ]; then
+	. /etc/default/json2dog
+fi
+
+# touch log file
+if [ ! -e $JSON2DOG_LOG ]; then
+	touch $JSON2DOG_LOG
+	chown $RUNASUSER $JSON2DOG_LOG
+fi
+
+UGID=$(getent passwd $RUNASUSER | cut -f 3,4 -d:) || true
+
+case $1 in
+	start)
+		log_daemon_msg "Starting json2dog server" "json2dog"
+		if [ -z "$UGID" ]; then
+			log_failure_msg "user \"$RUNASUSER\" does not exist"
+			exit 1
+		fi
+		start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --startas $DAEMON $JSON2DOG_URL $JSON2DOG_BASE
+		status=$?
+		log_end_msg $status
+		;;
+	stop)
+		log_daemon_msg "Stopping json2dog server" "json2dog"
+		start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
+		log_end_msg $?
+		rm -f $PIDFILE
+		;;
+	restart|force-reload)
+		$0 stop && sleep 2 && $0 start
+		;;
+	try-restart)
+		if $0 status >/dev/null; then
+			$0 restart
+		else
+			exit 0
+		fi
+		;;
+	reload)
+		exit 3
+		;;
+	status)
+		status_of_proc $DAEMON "json2dog server"
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart|try-restart|force-reload|status}"
+		exit 2
+		;;
+esac
