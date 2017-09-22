@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use sigtrap qw/handler  handle_death  normal-signals/;n
+use sigtrap qw/handler  handle_death  normal-signals/;
 
 use Data::Dumper;
 use LWP::Simple qw(get);
