@@ -129,7 +129,7 @@ sub error {
 		$hostname = $ENV{HOSTNAME} . ':';
 	}
 
-	print $log_fh "$now $hostname $log_message\n";
+	print $log_fh "$now $hostname[$$] $log_message\n";
 	$log_fh->flush();
 }
 
