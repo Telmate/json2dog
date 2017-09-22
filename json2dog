@@ -3,6 +3,8 @@
 use strict;
 use warnings;
 
+use sigtrap qw/handler  handle_death  normal-signals/;
+
 use Data::Dumper;
 use LWP::Simple qw(get);
 use JSON;
@@ -132,6 +134,11 @@ sub error {
 
 	print $log_fh "$now ${hostname}[$$] $log_message\n";
 	$log_fh->flush();
+}
+
+sub handle_death {
+	error("exiting on signal $!");
+	exit(1);
 }
 
 sub timed_log {
