@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use sigtrap qw/handler  handle_death  normal-signals/;
+use sigtrap qw/handler  handle_death  normal-signals/;n
 
 use Data::Dumper;
 use LWP::Simple qw(get);
@@ -137,7 +137,8 @@ sub error {
 }
 
 sub handle_death {
-	error("exiting on signal $!");
+	my $sig_name = shift;
+	error("exiting on signal $sig_name");
 	exit(1);
 }
 
