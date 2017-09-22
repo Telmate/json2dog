@@ -13,6 +13,7 @@ use DataDog::DogStatsd;
 # options
 my $debug = $ENV{JSON2DOG_DEBUG} || 0;
 my $log_file = $ENV{JSON2DOG_LOG} || undef;
+my $pid_file = $ENV{PIDFILE} || undef;
 my $delay = 60; # seconds
 
 my $use_curl = 0; # true if curl is better than LWP::Simple
@@ -154,7 +155,7 @@ sub timed_log {
 	#die;
 }
 
-# from https://stackoverflow.com/a/768448/2002471
+# mostly from https://stackoverflow.com/a/768448/2002471
 sub daemonize {
 	use POSIX;
 	POSIX::setsid or die "setsid: $!";
@@ -174,4 +175,10 @@ sub daemonize {
 	open (STDIN, "</dev/null");
 	open (STDOUT, ">/dev/null");
 	open (STDERR, ">&STDOUT");
+
+	if (defined $pid_file) {
+		open(my $pid_fh,'>',$pid_file) or die "couldn't open(>$pid_file): $!";
+		print $pid_fh "$$\n";
+		close($pid_fh) or die "couldn't close(>$pid_file): $!";
+	}
 }
