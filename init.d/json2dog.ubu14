@@ -30,16 +30,16 @@ if [ ! -e $JSON2DOG_LOG ]; then
 	chown $RUNASUSER $JSON2DOG_LOG
 fi
 
-# touch pid file
-if [ ! -e $PIDFILE ]; then
-	touch $PIDFILE
-	chown $RUNASUSER $PIDFILE
-fi
-
 UGID=$(getent passwd $RUNASUSER | cut -f 3,4 -d:) || true
 
 case $1 in
 	start)
+		# touch pid file
+		if [ ! -e $PIDFILE ]; then
+			touch $PIDFILE
+			chown $RUNASUSER $PIDFILE
+		fi
+
 		log_daemon_msg "Starting json2dog server" "json2dog"
 		if [ -z "$UGID" ]; then
 			log_failure_msg "user \"$RUNASUSER\" does not exist"
