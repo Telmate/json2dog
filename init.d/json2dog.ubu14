@@ -15,6 +15,7 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 DAEMON=/opt/json2dog/json2dog
 PIDFILE=/var/run/json2dog.pid
+export PERL5LIB=/opt/json2dog/lib
 
 test -x $DAEMON || exit 5
 

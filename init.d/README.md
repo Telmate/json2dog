@@ -6,6 +6,9 @@ These scripts are here to go into `/etc/init.d/json2dog`:
 [`etc_default_json2dog.ubu14`](etc_default_json2dog.ubu14) goes in `/etc/default/json2dog`.
 * [`json2dog.cent7`](json2dog.cent7) is for Red Hat Enterprise Linux 7 and CentOS 7
 
+They assume that `json2dog` is in `/opt/json2dog/json2dog` with the Perl modules in
+`/opt/json2dog/lib` (which gets set in `PERL5LIB`.
+
 ## Configuration
 
 Configure these settings in `/etc/default/json2dog`:
