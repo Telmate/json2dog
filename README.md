@@ -44,6 +44,7 @@ Options can be set by setting environment variables:
 * Perl 5
 * Perl module [DataDog::DogStatsd](https://github.com/binary-com/dogstatsd-perl) is included
 * Perl module JSON
+* Perl module IO::Handle (core module)
 * Perl module LWP::UserAgent
 
 The two standard Perl modules mentioned above can be installed my running

@@ -6,6 +6,7 @@ use warnings;
 use Data::Dumper;
 use LWP::Simple qw(get);
 use JSON;
+use IO::Handle;
 
 use DataDog::DogStatsd;
 
@@ -20,6 +21,8 @@ my $use_curl = 0; # true if curl is better than LWP::Simple
 
 # read command line arguments
 my ($health_url,$statsd_base) = @ARGV;
+
+daemonize();
 
 # open log file
 our $log_fh;
@@ -127,6 +130,7 @@ sub error {
 	}
 
 	print $log_fh "$now $hostname $log_message\n";
+	$log_fh->flush();
 }
 
 sub timed_log {
@@ -148,4 +152,26 @@ sub timed_log {
 		error("adding to log_minutes $show_minutes+60") if $debug;
 	}
 	#die;
+}
+
+# from https://stackoverflow.com/a/768448/2002471
+sub daemonize {
+	use POSIX;
+	POSIX::setsid or die "setsid: $!";
+
+	my $pid = fork ();
+	if ($pid < 0) {
+		die "fork: $!";
+	} elsif ($pid) {
+		exit 0;
+	}
+
+	chdir "/";
+	umask 0;
+	foreach (0 .. (POSIX::sysconf (&POSIX::_SC_OPEN_MAX) || 1024)) {
+		POSIX::close $_;
+	}
+	open (STDIN, "</dev/null");
+	open (STDOUT, ">/dev/null");
+	open (STDERR, ">&STDOUT");
 }
