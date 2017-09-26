@@ -45,7 +45,7 @@ OUTDEB=${PKGNAME}_${LATEST_TAG}-${MVER}_amd64.deb
 
 # build dependancy list
 ARG_DEPS=""
-for item in "$DEPS[@]{}"
+for item in "${DEPS[@]}"
 do
 	ARG_DEPS="$ARG_DEPS -d ${item}"
 done
