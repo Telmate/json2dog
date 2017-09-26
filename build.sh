@@ -62,7 +62,7 @@ cp init.d/etc_default_json2dog.ubu14 $TREE/etc/default/json2dog
 # package it
 #echo TREE=${TREE}
 cd ${BUILDDIR}
-fpm -s dir -t deb -n ${PKGNAME} -v ${LATEST_TAG} ${ARG_DEPS} --iteration ${MVER} -C ${TREE} usr
+fpm -s dir -t deb -n ${PKGNAME} -v ${LATEST_TAG} ${ARG_DEPS} --iteration ${MVER} -C ${TREE} opt etc
 
 echo ""
 cd ${BUILDDIR}
