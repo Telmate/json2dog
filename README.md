@@ -39,6 +39,8 @@ Options can be set by setting environment variables:
 
 	./json2dog health_url statsd_base
 
+Other options are used by the [init scripts](init.d/) and are documented [here](init.d/).
+
 ## Dependencies <a name="dependencies"></a>
 
 * Perl 5
