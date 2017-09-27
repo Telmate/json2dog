@@ -55,7 +55,7 @@ echo ARG_DEPS=${ARG_DEPS} TREE=${TREE} OUTDEB=${OUTDEB}
 set -x
 
 # cp things into place
-cp -R json2dog lib ${TREE}
+cp -R json2dog lib ${TREE}/opt/json2dog
 cp init.d/json2dog.ubu14 $TREE/etc/init.d/json2dog
 cp init.d/etc_default_json2dog.ubu14 $TREE/etc/default/json2dog
 
