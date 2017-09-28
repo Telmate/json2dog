@@ -3,7 +3,7 @@
 #
 # JSON2DOG_URL and JSON2DOG_BASE are set to the
 # same defaults that `json2dog` defaults to.
-# You probably want to change to these to something
+# You probably want to change these to something
 # meaningful for your setup.
 #
 export JSON2DOG_URL=https://jsonplaceholder.typicode.com/posts/1
