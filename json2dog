@@ -34,6 +34,7 @@ if (defined $log_file) {
 } else {
 	# log to STDOUT
 	open $log_fh, '>&STDOUT' or die "couldn't copy STDOUT: $!";
+	error("no JSON2DOG_LOG defined, using STDOUT");
 }
 
 # defaults
@@ -88,7 +89,6 @@ while (1) {
 sub http_get {
 	my ($url) = @_;
 
-	error('trying get');
 	my $raw;
 	unless ($use_curl) {
 		# LWP
