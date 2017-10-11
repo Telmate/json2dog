@@ -48,6 +48,7 @@ unless (defined $statsd_base) {
 }
 my @log_minutes = qw( 1 10 60 ); # and every 60x minutes
 my $stats_sent = 0; # initialize counter
+my $lwp_agent;
 
 # instances of handy objects
 my $dogstatsd = DataDog::DogStatsd->new;
@@ -88,7 +89,7 @@ sub http_get {
 	my ($url) = @_;
 
 	my $raw;
-	if ($use_curl) {
+	unless ($use_curl) {
 		$raw = get($url); # LWP::Simple
 	} else {
 		$raw = curl($url);
