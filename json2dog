@@ -6,7 +6,7 @@ use warnings;
 use sigtrap qw/handler  handle_death  normal-signals/;
 
 use Data::Dumper;
-use LWP::Simple qw(get);
+use LWP::UserAgent;
 use JSON;
 use IO::Handle;
 
@@ -18,14 +18,14 @@ my $log_file = $ENV{JSON2DOG_LOG} || undef;
 my $pid_file = $ENV{PIDFILE} || undef;
 my $delay = 60; # seconds
 
-my $use_curl = 0; # true if curl is better than LWP::Simple
+my $use_curl = 0; # true if curl is better than LWP
 #$use_curl = 1 if -e '/etc/redhat-release';
 #print "use_curl = $use_curl\n";
 
 # read command line arguments
 my ($health_url,$statsd_base) = @ARGV;
 
-daemonize();
+daemonize() unless $debug;
 
 # open log file
 our $log_fh;
@@ -88,9 +88,17 @@ while (1) {
 sub http_get {
 	my ($url) = @_;
 
+	error('trying get');
 	my $raw;
 	unless ($use_curl) {
-		$raw = get($url); # LWP::Simple
+		# LWP
+		unless (defined $lwp_agent) {
+			$lwp_agent = LWP::UserAgent->new;
+			$lwp_agent->ssl_opts(verify_hostname => 0);
+		}
+		my $response = $lwp_agent->get($url);
+		$raw = $response->content;
+		error($raw) if $debug;
 	} else {
 		$raw = curl($url);
 	}
@@ -101,7 +109,7 @@ sub http_get {
 
 sub curl {
 	my ($url) = @_;
-	my $output = `curl -s $url`;
+	my $output = `curl -sk $url`;
 	return $output;
 }
 
