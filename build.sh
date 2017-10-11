@@ -8,7 +8,7 @@
 # constants
 PKGNAME="json2dog"
 # TODO: fill in deps
-DEPS=(libjson-perl libwww-perl)
+DEPS=(libjson-perl libwww-perl libio-socket-ssl-perl)
 
 # local testing mode
 if [[ -z "$BUILDDIR" ]]; then

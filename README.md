@@ -47,6 +47,7 @@ Other options are used by the [init scripts](init.d/) and are documented [here](
 * Perl module [DataDog::DogStatsd](https://github.com/binary-com/dogstatsd-perl) is included
 * Perl module JSON
 * Perl module IO::Handle (core module)
+* Perl module IO::Socket::SSL
 * Perl module LWP::UserAgent
 
 The two standard Perl modules mentioned above can be installed my running
