@@ -61,6 +61,8 @@ The two standard Perl modules mentioned above can be installed my running
 
 Please file tickets via [github issues](https://github.com/Telmate/json2dog/issues).
 
+You may find the [CHANGELOG](CHANGELOG.md) helpful.
+
 ## Authors <a name="authors"></a>
 
 * Christopher Hicks <chicks@telmate.com>
