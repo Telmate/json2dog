@@ -19,11 +19,11 @@ Send JSON data from a URL to datadog.
 	export PERL5LIB=`pwd`
 	cd ..
 
-	./json2dog health_url statsd_base
+	./json2dog kafkaconnect_url statsd_base commaseperated_kafkaconnectips
 
 where
 
-* `health_url` is a URL to a JSON end point that returns stats we should graph
+* `kafkaconnect_url` is a URL to a JSON end point that returns stats we should graph
 * `statsd_base` is the start of the metric name that should be sent to datadog
 
 Options can be set by setting environment variables:
@@ -37,7 +37,11 @@ Options can be set by setting environment variables:
 	# log to a file
 	export JSON2DOG_LOG=/var/log/json2dog.log
 
-	./json2dog health_url statsd_base
+	./json2dog kafkaconnect_url statsd_base commaseperated_kafkaconnectips
+
+Example:
+
+  ./json2dog http://HOSTNAME:8083/connectors/<connectorname>/status tm.debezium kafka-esb-app1-bri.telmate.cc,kafka-esb-app2-bri.telmate.cc,kafka-esb-app3-bri.telmate.cc &
 
 Other options are used by the [init scripts](init.d/) and are documented [here](init.d/).
 
@@ -63,6 +67,3 @@ Please file tickets via [github issues](https://github.com/Telmate/json2dog/issu
 
 You may find the [CHANGELOG](CHANGELOG.md) helpful.
 
-## Authors <a name="authors"></a>
-
-* Christopher Hicks <chicks@telmate.com>
