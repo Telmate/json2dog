@@ -9,6 +9,7 @@ use Data::Dumper;
 use LWP::UserAgent;
 use JSON;
 use IO::Handle;
+use Try::Tiny;
 
 use DataDog::DogStatsd;
 
@@ -23,7 +24,7 @@ my $use_curl = 0; # true if curl is better than LWP
 #print "use_curl = $use_curl\n";
 
 # read command line arguments
-my ($health_url,$statsd_base) = @ARGV;
+my ($health_url,$statsd_base,$kafka_hostnames) = @ARGV;
 
 daemonize() unless $debug;
 
@@ -56,9 +57,38 @@ my $dogstatsd = DataDog::DogStatsd->new;
 $dogstatsd->{port} = find_port();
 my $json = JSON->new->allow_nonref;
 
+my @array_hostnames = split(',', $kafka_hostnames, length($kafka_hostnames));
+#print(@array_hostnames);
+my @connector_parse_name = split('/', $health_url, length($health_url));
+#print($connector_parse_name[4]);
+
+
 # keep pulling stats until we get killed
 while (1) {
-	my $raw_html = http_get($health_url);
+        #print($health_url);
+        my $raw_html;
+        my $hostname_size = scalar @array_hostnames;
+        for (my $host=0; $host < $hostname_size; $host++) {
+            (my $health_url_replace = $health_url) =~ s/HOSTNAME/$array_hostnames[$host]/;
+            $raw_html = http_get($health_url_replace);
+                if (index($raw_html, 'Connection refused') != -1){
+		  print($health_url_replace);
+                  print('Try with different Kafka Connect host....');
+                  next;
+                }
+
+             last;
+        }
+
+
+        if (index($raw_html, 'Connection refused') != -1){
+            my $metric_label_Connrefused = $statsd_base . '.' . $connector_parse_name[4] . '.' . "state";
+            $dogstatsd->gauge( $metric_label_Connrefused, -1);
+            $stats_sent++;
+            timed_log($stats_sent);
+            sleep($delay);
+            next;         
+        }
 
 	unless (defined $raw_html and length $raw_html) {
 		my $sleep_time = int(rand(30));
@@ -70,15 +100,23 @@ while (1) {
 	my $health_resp = $json->decode($raw_html);
 	error(Dumper($health_resp)) if $debug > 1;
 
-	foreach my $key (keys %$health_resp) {
-		my $value = $health_resp->{$key};
-		if ($value =~ /^[0-9.]+$/) { # only numbers
-			my $metric_label = $statsd_base . '.' . $key;
-			error("$metric_label -> $value") if $debug;
-			$dogstatsd->gauge( $metric_label, $value);
-			$stats_sent++;
-		}
-	}
+
+        foreach my $key (keys $health_resp ){
+            if ($key eq "connector") {
+              my $value = $health_resp->{$key};
+              my $connector_json = encode_json $value;
+              my $connector_resp = $json->decode($connector_json);
+              foreach my $connector_key (keys %$connector_resp) {
+                      my $connector_status = $connector_resp->{state};
+                      my $connector_value = $connector_status eq "RUNNING" ? 1 : 0;
+                      my $connector_name = $health_resp->{name};
+                      my $metric_label = $statsd_base . '.' . $connector_name . '.' . "state" ;
+                      error("$metric_label -> $connector_value") if $debug;
+                      $dogstatsd->gauge( $metric_label, $connector_value);
+                      $stats_sent++;
+              	    }
+              }
+        }
 
 	timed_log($stats_sent);
 
