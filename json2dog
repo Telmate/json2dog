@@ -9,6 +9,8 @@ use Data::Dumper;
 use LWP::UserAgent;
 use JSON;
 use IO::Handle;
+use Jmespath;
+use Data::Compare;
 
 use DataDog::DogStatsd;
 
@@ -23,7 +25,8 @@ my $use_curl = 0; # true if curl is better than LWP
 #print "use_curl = $use_curl\n";
 
 # read command line arguments
-my ($health_url,$statsd_base) = @ARGV;
+my ($health_url,$statsd_base,$json_path) = @ARGV;
+$json_path = $json_path || "@";
 
 daemonize() unless $debug;
 
@@ -70,15 +73,30 @@ while (1) {
 	my $health_resp = $json->decode($raw_html);
 	error(Dumper($health_resp)) if $debug > 1;
 
-	foreach my $key (keys %$health_resp) {
-		my $value = $health_resp->{$key};
+        my $result_object = Jmespath->search($json_path, $health_resp);
+        my $ref_type = $json->decode($result_object); #to check if it is ARRAY or HASH type, which denotes that JSON is not nested and should use the JSON response as it is and search for number in values.
+        if (ref($ref_type) eq "HASH"){
+	    foreach my $key (keys %$health_resp) {
+	        my $value = $health_resp->{$key};
 		if ($value =~ /^[0-9.]+$/) { # only numbers
 			my $metric_label = $statsd_base . '.' . $key;
 			error("$metric_label -> $value") if $debug;
 			$dogstatsd->gauge( $metric_label, $value);
 			$stats_sent++;
 		}
-	}
+	    }
+        } else {
+           # Using substring to pull the JSON key to use for metric_label
+           #my $path_key = (index $json_path, '?') + 1;
+           #my $path_condition = (index $json_path, '='); #Assuming we would most of the time try to pull stats based on the eqal condition
+           my $key = substr $json_path, (index $json_path, '?') + 1 , (((index $json_path, '='))-((index $json_path, '?') + 1));
+           my $value = Jmespath->search($json_path, $health_resp);
+           my $metric_label = $statsd_base . '.' . $key;
+           error("$metric_label -> $value") if $debug; 
+           $dogstatsd->gauge( $metric_label, $value);
+           $stats_sent++;
+           #to:do would have to pick the ip to make sure the stats are specific to hostnames or ips.
+        }
 
 	timed_log($stats_sent);
 
@@ -199,3 +217,4 @@ sub daemonize {
 		close($pid_fh) or die "couldn't close(>$pid_file): $!";
 	}
 }
+
