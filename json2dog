@@ -72,12 +72,8 @@ while (1) {
 	my $health_resp = $json->decode($raw_html);
 	error(Dumper($health_resp)) if $debug > 1;
 
-        my $result_object = Jmespath->search($json_path, $health_resp);
-        eval { $json->decode($result_object); };
-        if ($@){
-           die "Input parameter error, please verify the Json XPATH variable used";
-        } 
-        my $ref_type = $json->decode($result_object); #to check if it is ARRAY or HASH type, which denotes that JSON is not nested and should use the JSON response as it is and search for number in values.
+        my $ref_type = Jmespath::Parser->new->parse( $json_path )->search( $health_resp ) or die "Input parameter error, please verify the Json XPATH parameter used.";
+
         if (ref($ref_type) eq "HASH"){
 	    foreach my $key (keys %$health_resp) {
 	        my $value = $health_resp->{$key};
@@ -221,3 +217,4 @@ sub daemonize {
 		close($pid_fh) or die "couldn't close(>$pid_file): $!";
 	}
 }
+
