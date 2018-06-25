@@ -9,6 +9,7 @@ use Data::Dumper;
 use LWP::UserAgent;
 use JSON;
 use IO::Handle;
+use Jmespath;
 
 use DataDog::DogStatsd;
 
@@ -23,7 +24,8 @@ my $use_curl = 0; # true if curl is better than LWP
 #print "use_curl = $use_curl\n";
 
 # read command line arguments
-my ($health_url,$statsd_base) = @ARGV;
+my ($health_url,$statsd_base,$json_path) = @ARGV;
+$json_path = $json_path || "@";
 
 daemonize() unless $debug;
 
@@ -70,15 +72,31 @@ while (1) {
 	my $health_resp = $json->decode($raw_html);
 	error(Dumper($health_resp)) if $debug > 1;
 
-	foreach my $key (keys %$health_resp) {
-		my $value = $health_resp->{$key};
+        my $ref_type = Jmespath::Parser->new->parse( $json_path )->search( $health_resp ) or die "Input parameter error, please verify the Json XPATH parameter used.";
+
+        if (ref($ref_type) eq "HASH"){
+	    foreach my $key (keys %$health_resp) {
+	        my $value = $health_resp->{$key};
 		if ($value =~ /^[0-9.]+$/) { # only numbers
 			my $metric_label = $statsd_base . '.' . $key;
 			error("$metric_label -> $value") if $debug;
 			$dogstatsd->gauge( $metric_label, $value);
 			$stats_sent++;
 		}
-	}
+	    }
+        } else {
+           my $key;
+           if($json_path =~ /\?(.*)==/){
+             $key = $1;
+           } else {
+             $key = "status"; #Default name for key in case regex fails.
+           }
+           my $value = Jmespath->search($json_path, $health_resp);
+           my $metric_label = $statsd_base . '.' . $key;
+           error("$metric_label -> $value") if $debug;
+           $dogstatsd->gauge( $metric_label, $value);
+           $stats_sent++;
+        }
 
 	timed_log($stats_sent);
 
@@ -199,3 +217,4 @@ sub daemonize {
 		close($pid_fh) or die "couldn't close(>$pid_file): $!";
 	}
 }
+
