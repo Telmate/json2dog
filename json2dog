@@ -10,7 +10,6 @@ use LWP::UserAgent;
 use JSON;
 use IO::Handle;
 use Jmespath;
-use Data::Compare;
 
 use DataDog::DogStatsd;
 
@@ -74,6 +73,10 @@ while (1) {
 	error(Dumper($health_resp)) if $debug > 1;
 
         my $result_object = Jmespath->search($json_path, $health_resp);
+        eval { $json->decode($result_object); };
+        if ($@){
+           die "Input parameter error, please verify the Json XPATH variable used";
+        } 
         my $ref_type = $json->decode($result_object); #to check if it is ARRAY or HASH type, which denotes that JSON is not nested and should use the JSON response as it is and search for number in values.
         if (ref($ref_type) eq "HASH"){
 	    foreach my $key (keys %$health_resp) {
@@ -86,16 +89,17 @@ while (1) {
 		}
 	    }
         } else {
-           # Using substring to pull the JSON key to use for metric_label
-           #my $path_key = (index $json_path, '?') + 1;
-           #my $path_condition = (index $json_path, '='); #Assuming we would most of the time try to pull stats based on the eqal condition
-           my $key = substr $json_path, (index $json_path, '?') + 1 , (((index $json_path, '='))-((index $json_path, '?') + 1));
+           my $key;
+           if($json_path =~ /\?(.*)==/){
+             $key = $1;
+           } else {
+             $key = "status"; #Default name for key in case regex fails.
+           }
            my $value = Jmespath->search($json_path, $health_resp);
            my $metric_label = $statsd_base . '.' . $key;
-           error("$metric_label -> $value") if $debug; 
+           error("$metric_label -> $value") if $debug;
            $dogstatsd->gauge( $metric_label, $value);
            $stats_sent++;
-           #to:do would have to pick the ip to make sure the stats are specific to hostnames or ips.
         }
 
 	timed_log($stats_sent);
@@ -217,4 +221,3 @@ sub daemonize {
 		close($pid_fh) or die "couldn't close(>$pid_file): $!";
 	}
 }
-
