@@ -19,12 +19,13 @@ Send JSON data from a URL to datadog.
 	export PERL5LIB=`pwd`
 	cd ..
 
-	./json2dog health_url statsd_base
+	./json2dog health_url statsd_base Jmes_path
 
 where
 
 * `health_url` is a URL to a JSON end point that returns stats we should graph
 * `statsd_base` is the start of the metric name that should be sent to datadog
+* `Jmes_path` is Json XPath like string that is passed to extract specific parameters from JSON string. if no string is passed the default Xpath string value is set to @(root) which passes the entire JSON string(http://jmespath.org/tutorial.html)
 
 Options can be set by setting environment variables:
 
@@ -37,7 +38,7 @@ Options can be set by setting environment variables:
 	# log to a file
 	export JSON2DOG_LOG=/var/log/json2dog.log
 
-	./json2dog health_url statsd_base
+	./json2dog health_url statsd_base Jmes_path
 
 Other options are used by the [init scripts](init.d/) and are documented [here](init.d/).
 
@@ -49,6 +50,7 @@ Other options are used by the [init scripts](init.d/) and are documented [here](
 * Perl module IO::Handle (core module)
 * Perl module IO::Socket::SSL
 * Perl module LWP::UserAgent
+* Perl module Jmespath
 
 The two standard Perl modules mentioned above can be installed my running
 [`prereq.sh`](prereq.sh).
@@ -66,3 +68,4 @@ You may find the [CHANGELOG](CHANGELOG.md) helpful.
 ## Authors <a name="authors"></a>
 
 * Christopher Hicks <chicks@telmate.com>
+
